@@ -1,0 +1,688 @@
+\documentclass[twoside]{article}
+
+\usepackage{aistats2027}
+\usepackage[round,authoryear]{natbib}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{url}
+
+\renewcommand{\bibname}{References}
+\renewcommand{\bibsection}{\subsubsection*{\bibname}}
+\bibliographystyle{apalike}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\E}{\mathbb E}
+\newcommand{\R}{\mathbb R}
+\newcommand{\RR}{\mathsf{RR}}
+\newcommand{\one}{\mathbf 1}
+
+\begin{document}
+
+\onecolumn
+\begin{center}
+{\Large\bf Supplementary Material for
+``Minimax Random Reshuffling in Every Convex Regime''}
+\end{center}
+
+\section{Notation and a Permutation Estimate}
+\label{app:prelim}
+
+We first prove the all-iterate asymmetric bridge. Let $n\ge32$ be even. Let
+$s=(s_1,\ldots,s_n)$ be a uniform random permutation of $n/2$ signs equal to
+$+1$ and $n/2$ signs equal to $-1$. Define $S_i=\sum_{j=1}^i s_j$. Let
+\begin{equation}
+ h_\ell(x)=\frac\ell2(x_-)^2+\frac{\mu_0}{2}(x_+)^2,
+ \qquad g(x)=h_\ell'(x),
+ \qquad \mu_0=\frac{\ell}{2415}.
+ \label{eq:app-g}
+\end{equation}
+We write $h=h_\ell$ when the curvature is clear.
+One epoch of the active coordinate follows
+\begin{equation}
+ v_{i+1}=v_i-\eta\bigl(g(v_i)+\sigma s_{i+1}\bigr),
+ \qquad i=0,\ldots,n-1.
+ \label{eq:app-update}
+\end{equation}
+Write $z=\eta\ell$ and assume $zn\le1/161$.
+
+We use the following estimates from the proof of Theorem 3.1 of
+\citet{cha2023tighter}. We state the specialization needed here.
+
+\begin{lemma}[One-epoch estimates]
+\label{lem:app-cha}
+For a fixed start $v_0=y\ge0$, the process \eqref{eq:app-update} satisfies
+\begin{align}
+ \E g(v_i)
+ &\le \frac23\ell y-\frac{\eta\ell\sigma}{480}\sqrt i,
+ &&0\le i\le n/2,                                      \label{eq:app-cha1}\\
+ \E g(v_i)
+ &\le \left(1+\frac{161}{160}iz\right)\mu_0y
+ +\frac{161}{160}\eta\mu_0\sigma\sqrt i,
+ &&0\le i\le n-1.                                      \label{eq:app-cha2}
+\end{align}
+If the complete multi-epoch process starts at zero, every epoch boundary
+$Y_k$ satisfies
+\begin{equation}
+ \Pr(Y_k\ge0)\ge\frac12.
+ \label{eq:app-half}
+\end{equation}
+\end{lemma}
+
+The first inequality is Lemma B.2 of \citet{cha2023tighter}. It follows by
+conditioning on the sign of $S_i$, using
+$\E|S_i|\asymp\sqrt i$, and controlling the difference $v_i-y$ by a discrete
+Gronwall inequality. The second is their Lemma B.3, and the boundary sign
+probability is their Lemma B.4. Their assumptions hold because
+$\ell/\mu_0=2415$ and $zn\le1/161$.
+
+We also need a direct pathwise comparison. For any fixed start $y\in\R$,
+couple \eqref{eq:app-update} to
+\begin{equation}
+ q_{i+1}=(1-z)q_i-\eta\sigma s_{i+1},\qquad q_0=y.
+ \label{eq:app-symmetric}
+\end{equation}
+The map $x\mapsto x-\eta g(x)$ is increasing because $z<1$, and it is at
+least $(1-z)x$ for every $x$. Induction under the common sign sequence gives
+$v_i\ge q_i$ for every $i$.
+
+For clarity, the movement estimate underlying
+\eqref{eq:app-cha1}--\eqref{eq:app-cha2} is
+\begin{equation}
+ \E|v_i-y|\le\frac{161}{160}
+ \left(\eta\ell i y+\eta\sigma\sqrt i\right).
+ \label{eq:app-movement}
+\end{equation}
+Indeed, telescoping \eqref{eq:app-update}, using
+$|g(v)|\le\ell|v|$, and the without-replacement identity
+$\E S_i^2=i(n-i)/(n-1)\le i$ gives
+\[
+ \E|v_i-y|
+ \le\eta\ell i y+\eta\ell\sum_{j=0}^{i-1}\E|v_j-y|
+ +\eta\sigma\sqrt i.
+\]
+Since $zn\le1/161$, discrete Gronwall gives
+\eqref{eq:app-movement}. Substitution directly proves
+\eqref{eq:app-cha2}. The sharper signed estimate
+\eqref{eq:app-cha1} also uses
+$\E|S_i|\ge\sqrt i/10$ and
+$\Pr(S_i>0)=\Pr(S_i<0)\ge1/6$ for $i\le n/2$.
+These are the only external permutation facts used below.
+
+\section{Proof of the All-Iterate Bridge}
+\label{app:bridge}
+
+We now prove the all-iterate bridge lemma from the main paper, with all index
+and constant details.
+
+\subsection{Fixed nonnegative start}
+
+For a fixed $y\ge0$, summing \eqref{eq:app-update} and using
+$\E S_i=0$ gives
+\begin{equation}
+ \E[v_i\mid v_0=y]=y-\eta\sum_{j=0}^{i-1}\E g(v_j).
+ \label{eq:app-telescope}
+\end{equation}
+For $1\le i\le n/2+1$, substituting \eqref{eq:app-cha1} yields
+\begin{equation}
+ \E[v_i\mid y]
+ \ge\left(1-\frac23zi\right)y
+ +\frac{\eta^2\ell\sigma}{480}
+ \sum_{j=0}^{i-1}\sqrt j.
+ \label{eq:app-first}
+\end{equation}
+
+For $n/2+1<i\le n$, use \eqref{eq:app-cha1} through $j=n/2$ and
+\eqref{eq:app-cha2} afterward. This gives
+\begin{equation}
+ \E[v_i\mid y]\ge(1-\eta A_i)y+\eta^2\ell\sigma B_i,
+ \label{eq:app-second-raw}
+\end{equation}
+where
+\begin{align}
+ A_i&=\frac23\ell\left(\frac n2+1\right)
+ +\mu_0\sum_{j=n/2+1}^{i-1}
+ \left(1+\frac{161}{160}jz\right),                 \label{eq:app-A}\\
+ B_i&=\frac1{480}\sum_{j=0}^{n/2}\sqrt j
+ -\frac{161}{160\cdot2415}
+ \sum_{j=n/2+1}^{i-1}\sqrt j.                     \label{eq:app-B}
+\end{align}
+Because $jz\le nz\le1/161$ and $n\ge32$,
+\begin{align}
+ \frac{A_i}{\ell n}
+ &\le\frac13+\frac{2}{3n}
+ +\frac{1}{2\cdot2415}\frac{161}{160}\notag\\
+ &\le0.354362<0.36.                                 \label{eq:app-A-bound}
+\end{align}
+The adverse part of $B_i$ increases with $i$. Hence
+\begin{align}
+ \frac{B_i}{n^{3/2}}
+ &\ge \frac{1}{480n^{3/2}}
+ \int_0^{n/2}\sqrt t\,dt
+ -\frac{161}{160\cdot2415}\frac12\notag\\
+ &=\frac{1}{1440\sqrt2}
+ -\frac{161}{320\cdot2415}
+ >\frac1{18000}.                                    \label{eq:app-B-bound}
+\end{align}
+We used at most $n/2$ adverse summands, each bounded by $\sqrt n$.
+Combining \eqref{eq:app-second-raw}--\eqref{eq:app-B-bound},
+\begin{equation}
+ \E[v_i\mid y]
+ \ge(1-0.36\alpha)y
+ +\frac{\eta^2\ell\sigma n^{3/2}}{18000},
+ \qquad \alpha=zn.                                  \label{eq:app-second}
+\end{equation}
+
+\subsection{A common coefficient for negative starts}
+
+For $y<0$, Lemma~\ref{lem:app-cha} and marginal symmetry of each sign give
+\begin{equation}
+ \E[v_i\mid y]\ge\E[q_i\mid y]=(1-z)^iy.
+ \label{eq:app-negative}
+\end{equation}
+For $u\in[0,1/161]$,
+\begin{equation}
+ e^{-u}\le1-u+\frac{u^2}{2}
+ \le1-\frac{321}{322}u.                              \label{eq:app-exp}
+\end{equation}
+When $i\le n/2+1$, this implies
+\begin{equation}
+ (1-z)^i\le e^{-zi}\le1-\frac23zi.                  \label{eq:app-common-first}
+\end{equation}
+When $i>n/2+1$, we have $zi>\alpha/2$, so
+\begin{equation}
+ (1-z)^i\le e^{-zi}
+ \le1-\frac{321}{644}\alpha
+ \le1-0.36\alpha.                                   \label{eq:app-common-second}
+\end{equation}
+Because $y<0$, multiplying
+\eqref{eq:app-common-first} or \eqref{eq:app-common-second} by $y$ reverses
+the inequality. Thus the coefficients in \eqref{eq:app-first} and
+\eqref{eq:app-second} also lower bound the negative-start conditional means.
+
+\subsection{Random epoch starts and complete averaging}
+
+Let $Y_k=v_{k,0}$ and $M_k=\E Y_k$. The process starts with $Y_1=0$.
+By \eqref{eq:app-half}, $\Pr(Y_k\ge0)\ge1/2$. Averaging the common-coefficient
+bounds over positive and negative starts gives, for every pre-update index
+$0\le i\le n-1$,
+\begin{equation}
+ \E v_{k,i}\ge(1-0.36\alpha)M_k.                    \label{eq:app-all-i}
+\end{equation}
+For the first-half indices we used
+$(2/3)zi\le(2/3)(1/2+1/n)\alpha<0.36\alpha$.
+For $n/2+2\le i\le n-1$, the positive-start event also contributes the drift
+in \eqref{eq:app-second}, so
+\begin{equation}
+ \E v_{k,i}\ge(1-0.36\alpha)M_k
+ +\frac{\alpha q}{36000},
+ \qquad q=\eta\sigma\sqrt n.                        \label{eq:app-drift-i}
+\end{equation}
+The same inequality holds at the endpoint $i=n$. Therefore
+\begin{equation}
+ M_{k+1}\ge(1-\beta)M_k+\gamma,
+ \qquad \beta=0.36\alpha,
+ \quad\gamma=\frac{\alpha q}{36000}.                \label{eq:app-recursion}
+\end{equation}
+In particular, $M_k\ge0$ for every $k$, which justifies dropping the
+nonnegative common-coefficient terms when needed.
+
+Unrolling \eqref{eq:app-recursion} gives
+\begin{equation}
+ M_k\ge\frac{\gamma}{\beta}
+ \left[1-(1-\beta)^{k-1}\right].                    \label{eq:app-unroll}
+\end{equation}
+For every integer $j\ge0$,
+\begin{equation}
+ 1-(1-\beta)^j\ge1-e^{-\beta j}
+ \ge(1-e^{-1})\min\{\beta j,1\}.                   \label{eq:app-geometric}
+\end{equation}
+For $K\ge2$, monotonicity of the right side over the final half of its indices
+implies
+\begin{equation}
+ \frac1K\sum_{k=1}^KM_k
+ \ge c_0q\min\{(K-1)\alpha,1\}                     \label{eq:app-average-M}
+\end{equation}
+for a numerical $c_0>0$.
+
+There are $n/2-2\ge n/3$ pre-update indices covered by
+\eqref{eq:app-drift-i}. Averaging \eqref{eq:app-all-i} and
+\eqref{eq:app-drift-i} over all $nK$ output iterates gives
+\begin{align}
+ \E\bar v
+ &\ge(1-0.36\alpha)\frac1K\sum_{k=1}^KM_k
+ +\frac{\alpha q}{108000}\notag\\
+ &\ge c_1q\min\{K\alpha,1\}.                       \label{eq:app-final-mean}
+\end{align}
+The direct second term covers $K=1$. Since
+\begin{equation}
+ h(v)\ge\frac{\ell}{2\cdot2415}v^2,
+ \label{eq:app-strong}
+\end{equation}
+Jensen's inequality yields
+\begin{equation}
+ \E h(\bar v)
+ \ge c_2\ell\eta^2n\sigma^2
+ \min\{K\eta\ell n,1\}^2.                          \label{eq:app-final-risk}
+\end{equation}
+This proves the all-iterate bridge lemma.
+
+\section{Proof of the Fixed-Step Theorem}
+\label{app:fixed}
+
+We give the complete direct-sum argument for even $n$. Let $T=nK$ and set
+\begin{equation}
+ \lambda=\min\left\{L,\frac{1}{2\eta T}\right\},
+ \qquad
+ \ell=\min\left\{L,\frac{1}{161\eta n}\right\}.
+ \label{eq:app-curvatures}
+\end{equation}
+Take balanced $b_i\in\{-\sigma,+\sigma\}$ and define
+\begin{equation}
+ f_i(u,v,w)=\frac\lambda2u^2+h(v)+b_iv+\frac L2w^2.
+ \label{eq:app-hard}
+\end{equation}
+Initialize at $(D,0,0)$. The average objective has unique minimizer zero.
+Every component is convex. Its Hessian slopes belong to
+$\{\lambda,\ell,\ell/2415,L\}$, so its minimal gradient-Lipschitz constant is
+exactly $L$. The initial distance is $D$, and
+\begin{equation}
+ \frac1n\sum_{i=1}^n\lVert\nabla f_i(0)\rVert^2
+ =\frac1n\sum_{i=1}^nb_i^2=\sigma^2.                \label{eq:app-exact-sigma}
+\end{equation}
+
+The dormant coordinate stays zero. In the first coordinate, the global
+pre-update sequence is $u_t=(1-\eta\lambda)^tD$. The base is nonnegative
+because $\eta L\le1/6$. Bernoulli's inequality and
+$\eta\lambda T\le1/2$ give
+\begin{equation}
+ u_t\ge(1-\eta\lambda t)D\ge D/2,
+ \qquad 0\le t<T.
+\end{equation}
+Consequently,
+\begin{equation}
+ \frac\lambda2\bar u^2
+ \ge\frac{\lambda D^2}{8}
+ \ge\frac1{16}\min\left\{LD^2,\frac{D^2}{\eta T}\right\}.     \label{eq:app-det}
+\end{equation}
+
+The second coordinate starts at zero and satisfies the bridge assumptions.
+From \eqref{eq:app-final-risk},
+\begin{align}
+ \E h(\bar v)
+ &\ge c_2\ell\eta^2n\sigma^2
+ \min\{K\eta\ell n,1\}^2.                         \label{eq:app-stoch}
+\end{align}
+Also,
+\begin{equation}
+ \ell\eta^2n
+ =\min\{\eta^2nL,\eta/161\}
+ \ge\frac1{161}\min\{\eta^2nL,\eta\}.             \label{eq:app-scale}
+\end{equation}
+
+Suppose first that $\eta LT\ge1/161$. If $\eta nL<1/161$, then
+$K\eta\ell n=K\eta nL=\eta LT\ge1/161$. If
+$\eta nL\ge1/161$, then $K\eta\ell n=K/161\ge1/161$. Thus the last factor
+of \eqref{eq:app-stoch} is at least $1/161^2$. Combining
+\eqref{eq:app-det}--\eqref{eq:app-scale} gives
+\begin{align}
+ \E[f(\bar x)-f(0)]
+ \ge c_3\left[\min\left\{LD^2,\frac{D^2}{\eta T}\right\}\right.\quad\notag\\[-1ex]
+ \left.{}+\min\{\eta^2nL,\eta\}\sigma^2\right].    \label{eq:app-case-one}
+\end{align}
+The right side lower bounds a constant multiple of
+\begin{equation}
+ \min\left\{LD^2,
+ \frac{D^2}{\eta T}+\min\{\eta^2nL,\eta\}\sigma^2\right\}.
+ \label{eq:app-target}
+\end{equation}
+
+If $\eta LT<1/161$, then $\lambda=L$, and
+\eqref{eq:app-det} is at least $LD^2/8$. This directly lower bounds
+\eqref{eq:app-target}. The fixed-step theorem follows.
+
+\section{Odd Component Counts}
+\label{app:odd}
+
+Let $n\ge33$ be odd and $m=n-1$. Use the preceding even construction on
+$m$ active components. Add one dummy component that is zero in the $u$ and
+$v$ coordinates. Include $Lw^2/2$ in all $n$ components, including the dummy.
+Set the active sign magnitudes to
+\begin{equation}
+ \sigma_a=\sigma\sqrt{\frac nm}.
+\end{equation}
+Then the full instance has $\sigma_\star=\sigma$ exactly. Its average
+objective in the active coordinates is $m/n$ times the even objective.
+
+Deleting the dummy from a uniform permutation of $[n]$ leaves a uniform
+permutation of the $m$ active components. The dummy update does not change
+the active state. The $n$ pre-update states in an epoch are the $m$ active
+pre-update states plus one repeated active state. Conditional on the rank of
+the dummy, this repeated state is $v_i$ for some $0\le i\le m$. Every such
+state has nonnegative expectation by \eqref{eq:app-all-i} and the endpoint
+recursion. Therefore
+\begin{equation}
+ \E\bar v_{n}\ge\frac mn\E\bar v_m.
+\end{equation}
+The deterministic coordinate is positive pathwise, so the same comparison
+holds there. Apply the even construction with
+\begin{equation}
+ \ell=\min\{L,1/(161\eta m)\},
+ \qquad \lambda=\min\{L,1/(2\eta mK)\}.
+\end{equation}
+Since $m/n\ge32/33$ and $m$ is within a fixed factor of $n$, all target terms
+change by at most universal constants. This proves the theorem for odd $n$.
+
+\section{Heterogeneous Smoothness}
+\label{app:heterogeneous}
+
+We prove Theorem 4 from the main paper. Let
+\[
+ q_{\rm eff}=\frac{n\bar L}{\widehat L}\ge34.
+\]
+Choose an even integer $m$ as follows. If $q_{\rm eff}=n$ and $n$ is even,
+take $m=n$. Otherwise take the largest even integer strictly below
+$q_{\rm eff}$. Then
+\begin{equation}
+ q_{\rm eff}-2\le m<q_{\rm eff},
+ \qquad
+ \frac{16}{17}\bar L
+ \le\frac{m\widehat L}{n}\le\bar L.                 \label{eq:app-m-choice}
+\end{equation}
+In particular, $m\ge32$.
+
+There are $m$ active components and $n-m$ inactive components. Define
+\begin{equation}
+ \delta=\frac{n\bar L-m\widehat L}{n-m}              \label{eq:app-delta}
+\end{equation}
+when $m<n$. The strict choice of $m$ gives $0<\delta\le\widehat L$. On a
+common dormant coordinate $w$, active components contain
+$\widehat Lw^2/2$ and inactive components contain $\delta w^2/2$. Thus the
+maximum component smoothness is exactly $\widehat L$ and the average is
+exactly $\bar L$. When $m=n$, all components contain
+$\widehat Lw^2/2$ and $\bar L=\widehat L$.
+
+Set
+\begin{equation}
+ \sigma_a=\sigma\sqrt{\frac nm},
+ \quad
+ \lambda=\min\left\{\widehat L,\frac1{2\eta mK}\right\},
+ \quad
+ \ell=\min\left\{\widehat L,\frac1{161\eta m}\right\}.            \label{eq:app-hetero-scales}
+\end{equation}
+For the active components, use
+\begin{equation}
+ f_i(u,v,w)=\frac\lambda2u^2+h_\ell(v)+b_iv
+ +\frac{\widehat L}{2}w^2,
+ \qquad b_i\in\{-\sigma_a,+\sigma_a\},              \label{eq:app-active}
+\end{equation}
+with balanced signs. For inactive components use
+$f_i(u,v,w)=\delta w^2/2$. Initialize at $(D,0,0)$. Every component is convex.
+The active components have minimal smoothness $\widehat L$, the inactive
+components have minimal smoothness $\delta$, and
+\begin{equation}
+ \frac1n\sum_{i=1}^n\|\nabla f_i(0)\|^2
+ =\frac mn\sigma_a^2=\sigma^2.                    \label{eq:app-hetero-variance}
+\end{equation}
+The average objective in the hard coordinates is
+\begin{equation}
+ f(u,v,0)=\frac mn\left(\frac\lambda2u^2+h_\ell(v)\right).
+ \label{eq:app-hetero-objective}
+\end{equation}
+
+\subsection{Uniform interleaving}
+
+Delete the inactive entries from a uniform permutation of $[n]$. The remaining
+active order is uniform, and conditional on this order the inactive entries
+are uniformly interleaved. Let $d_r$ be the number of inactive entries after
+$r$ active updates and before active update $r+1$, where $0\le r<m$. Let
+$d_m$ count inactive entries after all active updates. Symmetry gives
+\begin{equation}
+ \E d_r=\frac{n-m}{m+1},
+ \qquad 0\le r\le m.                                \label{eq:app-gap}
+\end{equation}
+
+Let $z_0,\ldots,z_m$ be one coordinate's active states. The full output in
+that epoch contains $d_r+1$ copies of $z_r$ for $r<m$, and $d_m$ copies of
+$z_m$. The interleaving is independent of the active sign order. Therefore
+\begin{align}
+ \E[\bar z_{\rm full}\mid z_0,\ldots,z_m]
+ &=\frac{n+1}{n(m+1)}\sum_{r=0}^{m-1}z_r
+ +\frac{n-m}{n(m+1)}z_m.                           \label{eq:app-interleave}
+\end{align}
+After averaging over active orders, every bridge state and endpoint has
+nonnegative mean. It follows that
+\begin{equation}
+ \E\bar z_{\rm full}
+ \ge\frac{m(n+1)}{n(m+1)}
+ \E\bar z_{\rm active}
+ \ge\frac12\E\bar z_{\rm active}.                  \label{eq:app-interleave-lower}
+\end{equation}
+For the deterministic coordinate, all states are at least $D/2$ pathwise.
+
+\subsection{Fixed-step lower bound}
+
+The deterministic active process makes $mK$ updates, and
+$\eta\lambda mK\le1/2$. By \eqref{eq:app-hetero-objective},
+\begin{align}
+ \frac mn\frac\lambda2\bar u^2
+ &\ge c\min\left\{\frac{m\widehat L}{n}D^2,
+ \frac{D^2}{\eta nK}\right\}\notag\\
+ &\ge c'\min\left\{\bar LD^2,\frac{D^2}{\eta nK}\right\}.        \label{eq:app-hetero-det}
+\end{align}
+
+Apply the bridge lemma to the $m$ active components with variance
+$\sigma_a^2$. Equations \eqref{eq:app-hetero-objective} and
+\eqref{eq:app-interleave-lower} give
+\begin{align}
+ \E f(0,\bar v,0)
+ &\ge c\frac mn\ell\eta^2m\sigma_a^2
+ \min\{K\eta\ell m,1\}^2\notag\\
+ &=c\ell\eta^2m\sigma^2
+ \min\{K\eta\ell m,1\}^2.                          \label{eq:app-hetero-stoch}
+\end{align}
+By \eqref{eq:app-m-choice},
+\begin{equation}
+ \ell\eta^2m
+ =\min\{\eta^2m\widehat L,\eta/161\}
+ \asymp\min\{\eta^2n\bar L,\eta\}.                 \label{eq:app-hetero-noise}
+\end{equation}
+
+If $\eta m\widehat LK$ is at least a numerical constant, the attenuation in
+\eqref{eq:app-hetero-stoch} is a numerical constant. Otherwise
+$\lambda=\widehat L$, and \eqref{eq:app-hetero-det} is
+$\Omega(\bar LD^2)$. The case argument from Section~\ref{app:fixed} proves
+\begin{align}
+ \E[f(\bar x)-f(0)]
+ \ge c\min\left\{\bar LD^2,\frac{D^2}{\eta nK}
+ +\min\{\eta^2n\bar L,\eta\}\sigma^2\right\}.        \label{eq:app-hetero-fixed}
+\end{align}
+
+The scalar optimization below applies with the noise curvature $L$ replaced
+by $\bar L$ and the maximum step restricted by $\widehat L$. The condition
+$n\bar L/\widehat L\ge34$ places the transition $1/(n\bar L)$ below the
+endpoint $1/(6\widehat L)$ by a fixed factor. It yields
+\begin{align}
+ \inf_\eta\left[
+ \frac{D^2}{\eta nK}
+ +\min\{\eta^2n\bar L,\eta\}\sigma^2\right]
+ \asymp \frac{\widehat LD^2}{nK}
+ +\min\left\{\frac{\sigma D}{\sqrt{nK}},
+ \left(\frac{\bar L\sigma^2D^4}{nK^2}\right)^{1/3}\right\}.
+\end{align}
+Together with \eqref{eq:app-hetero-fixed}, this proves the heterogeneous
+minimax lower bound. The matching upper bound is due to
+\citet{liu2026dominates}, plus the $\bar LD^2/2$ small-step cap.
+
+\section{Uniform Small-Step Cap}
+\label{app:cap}
+
+We justify the smoothness cap uniformly over the minimax class. Let
+$a_i=\|\nabla f_i(x_\star)\|$ and let $L_i$ be valid component smoothness
+constants. For any realized sequence of component indices $j_t$, write
+$r_t=\|x_t-x_\star\|$. Smoothness gives
+\begin{equation}
+ r_{t+1}\le(1+\eta L_{j_t})r_t+\eta a_{j_t}.
+\end{equation}
+Across $K$ complete permutations,
+\begin{equation}
+ \sum_{t=0}^{nK-1}L_{j_t}=nK\bar L,
+ \qquad
+ \sum_{t=0}^{nK-1}a_{j_t}
+ =K\sum_{i=1}^na_i\le nK\sigma.
+\end{equation}
+Unrolling the recursion and using $1+u\le e^u$ yields the pathwise bound
+\begin{equation}
+ \max_{0\le t<nK}r_t
+ \le e^{\eta nK\bar L}(D+\eta nK\sigma).             \label{eq:app-uniform-iterate}
+\end{equation}
+The average objective is $\bar L$-smooth and has zero gradient at
+$x_\star$. Convexity of the norm and \eqref{eq:app-uniform-iterate} therefore
+give
+\begin{equation}
+ f(\bar x)-f(x_\star)
+ \le\frac{\bar L}{2}e^{2\eta nK\bar L}
+ (D+\eta nK\sigma)^2.                                \label{eq:app-uniform-cap}
+\end{equation}
+This holds uniformly over the class and every permutation. Taking
+$\eta\downarrow0$ proves the cap $\bar LD^2/2$. The equal-smoothness case has
+$\bar L=L$.
+
+\section{Optimization of the Step Size}
+\label{app:optimization}
+
+We prove the two-sided scalar optimization used in the minimax corollary.
+
+\begin{lemma}[Two-branch optimization]
+\label{lem:app-opt}
+Let $n\ge6$, $K\ge1$, $T=nK$, and $L,D,\sigma>0$. Define
+\begin{equation}
+ \Phi(\eta)=\frac{D^2}{\eta T}
+ +\sigma^2\min\{\eta,\eta^2nL\},
+ \qquad 0<\eta\le\frac1{6L}.
+\end{equation}
+Then
+\begin{align}
+ \inf_\eta\Phi(\eta)
+ \asymp \frac{LD^2}{T}
+ +\min\left\{\frac{\sigma D}{\sqrt T},
+ \left(\frac{L\sigma^2D^4}{nK^2}\right)^{1/3}\right\}.          \label{eq:app-opt}
+\end{align}
+\end{lemma}
+
+\begin{proof}
+Put
+\begin{align*}
+ A&=\frac{LD^2}{T},
+ &S&=\frac{\sigma D}{\sqrt T},
+ &R&=\left(\frac{L\sigma^2D^4}{nK^2}\right)^{1/3}.
+\end{align*}
+For every admissible $\eta$, the deterministic term is at least $6A$.
+If $\eta\ge1/(nL)$, the arithmetic-geometric mean inequality gives
+\begin{equation}
+ \frac{D^2}{\eta T}+\eta\sigma^2\ge2S.
+\end{equation}
+If $\eta\le1/(nL)$, minimizing $a/\eta+b\eta^2$ on the positive half-line,
+or weighted arithmetic-geometric mean, gives
+\begin{equation}
+ \frac{D^2}{\eta T}+\eta^2nL\sigma^2\ge cR.
+\end{equation}
+Hence every $\eta$ gives
+$\Phi(\eta)\ge c'[A+\min\{S,R\}]$.
+
+For the reverse inequality, define
+\begin{equation}
+ \eta_S=\frac{D}{\sigma\sqrt T},
+ \qquad
+ \eta_R=\left(\frac{D^2}{n^2KL\sigma^2}\right)^{1/3}.
+\end{equation}
+The conditions $\eta_S\ge1/(nL)$ and
+$\eta_R\le1/(nL)$ are respectively equivalent to
+\begin{equation}
+ K\le\frac{L^2D^2n}{\sigma^2}
+ \quad\text{and}\quad
+ K\ge\frac{L^2D^2n}{\sigma^2}.
+\end{equation}
+Thus the candidate corresponding to $\min\{S,R\}$ lies in its correct branch.
+If that candidate is at most $1/(6L)$, substitution gives a constant multiple
+of $S$ or $R$. The same substitution shows that its value dominates $A$, so
+it also upper bounds $A+\min\{S,R\}$ up to a constant.
+
+If the candidate exceeds $1/(6L)$, choose $\eta=1/(6L)$. This can only occur
+on the $S$ branch. The condition $\eta_S>1/(6L)$ implies
+\begin{equation}
+ S<6A,
+ \qquad \frac{\sigma^2}{6L}<6A.
+\end{equation}
+Therefore $\Phi(1/(6L))<12A$, which is again a constant multiple of
+$A+\min\{S,R\}$. This proves \eqref{eq:app-opt}.
+\end{proof}
+
+The heterogeneous optimization used in the main paper follows by the same
+argument. We record it explicitly.
+
+\begin{corollary}[Two-smoothness optimization]
+\label{cor:app-opt-hetero}
+Let $0<\bar L\le\widehat L$ and
+$n\bar L/\widehat L\ge34$. Then
+\begin{align}
+ &\inf_{0<\eta\le1/(6\widehat L)}
+ \left[\frac{D^2}{\eta nK}
+ +\sigma^2\min\{\eta,\eta^2n\bar L\}\right]\notag\\
+ &\quad\asymp\frac{\widehat LD^2}{nK}
+ +\min\left\{\frac{\sigma D}{\sqrt{nK}},
+ \left(\frac{\bar L\sigma^2D^4}{nK^2}\right)^{1/3}\right\}.
+ \label{eq:app-opt-hetero}
+\end{align}
+\end{corollary}
+
+\begin{proof}
+Repeat the proof of Lemma~\ref{lem:app-opt} with the noise curvature equal to
+$\bar L$ and the step endpoint set by $\widehat L$. The deterministic term is
+at least $6\widehat LD^2/(nK)$. The branch transition
+$1/(n\bar L)$ is below $1/(6\widehat L)$. Hence the cubic candidate is always
+admissible. If the stochastic-gradient candidate exceeds the endpoint, use
+$\eta=1/(6\widehat L)$. Exactly as before, both its deterministic and noise
+terms are then bounded by a constant multiple of
+$\widehat LD^2/(nK)$. This proves \eqref{eq:app-opt-hetero}.
+\end{proof}
+
+Finally, for any constant $a$ and function $G$,
+\begin{equation}
+ \inf_\eta\min\{a,G(\eta)\}=\min\{a,\inf_\eta G(\eta)\}.
+\end{equation}
+Applying this identity to the fixed-step lower bound and
+Lemma~\ref{lem:app-opt} proves the minimax lower bound. The upper bound is
+Proposition 1 in the main paper.
+
+\section{Mechanical Constant Checks}
+\label{app:checks}
+
+As an additional check, direct enumeration of the exact finite sums in
+\eqref{eq:app-A} and \eqref{eq:app-B}, as well
+as both common-coefficient inequalities, for every even
+$32\le n\le4096$. It reports
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+quantity & worst value \\
+\midrule
+$A_i/(\ell n)$ & $0.3543616759$ \\
+$B_i/n^{3/2}$ & $0.0003117429$ \\
+negative-start coefficient gap & $-0.0008678$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+The analytic bounds above cover all larger $n$. A separate random check samples
+300,000 dimensionless fixed-step regimes and 20,000 optimization regimes to
+check the algebraic case reduction. These checks are not used as evidence for
+the theorem.
+
+\bibliography{references}
+
+\end{document}

@@ -1,0 +1,18 @@
+\begin{thebibliography}{}
+
+\bibitem[Cha et~al., 2023]{cha2023tighter}
+Cha, J., Lee, J., and Yun, C. (2023).
+\newblock Tighter lower bounds for shuffling {SGD}: Random permutations and
+  beyond.
+\newblock In {\em Proceedings of the 40th International Conference on Machine
+  Learning}, volume 202 of {\em Proceedings of Machine Learning Research},
+  pages 3855--3912. PMLR.
+
+\bibitem[Liu, 2026]{liu2026dominates}
+Liu, Z. (2026).
+\newblock Random reshuffling dominates stochastic gradient descent.
+\newblock In {\em Proceedings of the 39th Conference on Learning Theory},
+  volume 336 of {\em Proceedings of Machine Learning Research}, pages
+  4859--4882. PMLR.
+
+\end{thebibliography}

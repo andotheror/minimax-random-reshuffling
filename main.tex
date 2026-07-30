@@ -1,0 +1,606 @@
+\documentclass[twoside]{article}
+
+\usepackage[preprint]{aistats2027}
+\usepackage[round,authoryear]{natbib}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{url}
+
+\renewcommand{\bibname}{References}
+\renewcommand{\bibsection}{\subsubsection*{\bibname}}
+\bibliographystyle{apalike}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\E}{\mathbb E}
+\newcommand{\R}{\mathbb R}
+\newcommand{\cF}{\mathcal F}
+\newcommand{\RR}{\mathsf{RR}}
+\newcommand{\SGD}{\mathsf{SGD}}
+\newcommand{\one}{\mathbf 1}
+\newcommand{\asympup}{\mathrel{\lesssim}}
+\newcommand{\asympdown}{\mathrel{\gtrsim}}
+
+\begin{document}
+\runningauthor{}
+
+\twocolumn[
+\aistatstitle{Minimax Random Reshuffling in Every Convex Regime}
+
+\aistatsauthor{Pahan Dewasurendra}
+
+\aistatsaddress{Johns Hopkins University\\[4pt] July 30, 2026}
+]
+
+\begin{abstract}
+Random reshuffling is the standard implementation of stochastic gradient
+descent on finite sums, but its finite-time theory was incomplete. A recent
+upper bound shows that, for every reasonable constant step size and every
+number of epochs, averaging all within-epoch iterates incurs
+\[
+ \frac{D^2}{\eta nK}
+ +\min\{\eta,\eta^2nL\}\sigma_\star^2.
+\]
+It was open whether this interpolation between stochastic gradient descent
+and reshuffling is sharp.
+
+We prove a matching lower bound after the natural smoothness cap. Consequently,
+the minimax error of optimally tuned constant-step random reshuffling is
+\[
+\begin{aligned}
+ \Theta\!\Bigg(\min\!\Bigg\{&
+ LD^2,\frac{LD^2}{nK}\\[-0.5ex]
+ &+\min\!\left\{\frac{\sigma_\star D}{\sqrt{nK}},
+ \left(\frac{L\sigma_\star^2D^4}{nK^2}\right)^{1/3}\right\}
+ \Bigg\}\Bigg).
+\end{aligned}
+\]
+The result holds for every $K$ and every $n\ge32$.
+It closes both restrictions in the previous convex lower bound, which needed
+$\eta=O(1/(nL))$ and many epochs and concerned epoch endpoints.
+We also match the separate average and maximum component smoothness parameters
+whenever the effective active count $n\bar L/\widehat L$ is at least a
+constant.
+
+The proof uses an asymmetric random-permutation bridge. Its new ingredient is
+to set the active curvature to
+$\ell=\min\{L,1/(161\eta n)\}$. The same small-effective-step bridge then
+produces $\eta^2nL\sigma_\star^2$ for small steps and
+$\eta\sigma_\star^2$ for large steps. A common contraction inequality controls
+every within-epoch iterate, while an orthogonal deterministic coordinate
+covers the finite-horizon transient. The hard instances are three-dimensional,
+component convex, and have exact smoothness and variance parameters.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+For a finite sum $f=n^{-1}\sum_{i=1}^n f_i$, practical stochastic gradient
+descent usually processes a random permutation of the components in each
+epoch. This random reshuffling strategy is easy to implement and often
+outperforms independent sampling. Its analysis is harder because a component
+gradient is not conditionally unbiased after the preceding elements of a
+permutation have been observed.
+
+A long line of work established faster asymptotic rates under small steps or
+large epoch counts \citep{nagaraj2019sgd,haochen2019random,
+mishchenko2020random,ahn2020sgd,nguyen2021unified}. Matching lower bounds revealed a genuine
+reshuffling advantage, first for quadratics and later for smooth components
+\citep{safran2020good,rajput2020closing,safran2021many,cha2023tighter}.
+These results did not settle the smooth convex problem at practical constant
+steps or at finite epoch counts.
+
+\citet{liu2026dominates} recently removed both restrictions on the upper-bound
+side. Let $D=\lVert x_0-x_\star\rVert$, let $L$ bound each component
+smoothness, and define
+\begin{equation}
+ \sigma_\star^2=\frac1n\sum_{i=1}^n
+ \lVert\nabla f_i(x_\star)\rVert^2.
+ \label{eq:sigma}
+\end{equation}
+For any $\eta\le 1/(6L)$, their theorem bounds the objective error at the
+average of all within-epoch iterates by
+\begin{equation}
+ O\!\left(
+ \frac{D^2}{\eta nK}
+ +\min\{\eta,\eta^2nL\}\sigma_\star^2
+ \right).
+ \label{eq:liu-fixed}
+\end{equation}
+The first noise term is the familiar $\SGD$ scale. The second is the faster
+reshuffling scale. The minimum proves that $\RR$ is never worse than $\SGD$
+for any reasonable step. The paper explicitly asks for a complete lower bound
+under arbitrary reasonable steps and finite $K$.
+
+We answer this question for optimally tuned constant-step $\RR$. Up to
+universal constants, its minimax error is
+\begin{equation}
+ \min\!\left\{LD^2,\frac{LD^2}{nK}
+ +\min\!\left\{
+ \frac{\sigma_\star D}{\sqrt{nK}},
+ \left(\frac{L\sigma_\star^2D^4}{nK^2}\right)^{1/3}
+ \right\}\right\}.
+ \label{eq:rate-intro}
+\end{equation}
+The outer cap is unavoidable. As $\eta$ tends to zero, the output tends to the
+initial point, whose objective gap is at most $LD^2/2$.
+
+\paragraph{Why prior constructions stop at small steps.}
+The sharp convex lower bound of \citet{cha2023tighter} uses a piecewise
+quadratic whose curvature is larger on the negative half-line. A balanced
+random permutation makes the iterates trace a discrete bridge. The curvature
+asymmetry converts the bridge magnitude into a one-sided bias. Their movement
+estimates require $\eta nL$ to be a small constant. Their theorem also needs
+enough epochs for the bias to persist at epoch endpoints.
+
+Our key reduction is to separate the class smoothness $L$ from the curvature
+that creates the bridge. For a tested step $\eta$, set
+\begin{equation}
+ \ell=\min\left\{L,\frac{1}{161\eta n}\right\}.
+ \label{eq:ell}
+\end{equation}
+The bridge always sees a small effective step. Its error scale is
+\[
+ \ell\eta^2n\sigma_\star^2
+ =\min\{\eta^2nL,\eta/161\}\sigma_\star^2,
+\]
+which is precisely the two-branch noise term in
+\eqref{eq:liu-fixed}, up to a constant. Thus one construction covers both
+small and large steps.
+
+Two further ideas handle the output and finite horizon. First, we strengthen
+the asymmetric bridge from epoch endpoints to every within-epoch iterate. A
+pointwise comparison on negative starts and an expected-gradient inequality
+on positive starts admit one common contraction coefficient. Second, an
+orthogonal slow quadratic coordinate supplies the transient whenever the
+bridge has not accumulated. A dormant $L$-quadratic coordinate makes every
+component's minimal smoothness constant exactly $L$ without changing the
+dynamics.
+
+\paragraph{Contributions.}
+\begin{itemize}
+\item We prove the fixed-step lower bound
+\[
+ \Omega\!\left(
+ \min\!\left\{LD^2,\frac{D^2}{\eta nK}
+ +\min\{\eta,\eta^2nL\}\sigma_\star^2\right\}\right)
+\]
+for every $\eta\le1/(6L)$ and every finite $K$.
+\item Optimizing the step gives the matching minimax rate
+\eqref{eq:rate-intro}. This closes the small-step and large-epoch restrictions
+of the previous convex lower bound.
+\item The hard instance controls the exact all-within-iterate average used by
+the new upper bound. It has dimension three, convex components, exact
+$\sigma_\star$, and exact component smoothness $L$.
+\item An active-subset construction extends the rate to heterogeneous
+smoothness, matching both $\bar L$ and $\widehat L$ in the upper bound when
+$n\bar L/\widehat L\ge34$.
+\end{itemize}
+
+\section{Setting and Upper Benchmark}
+\label{sec:setting}
+
+For $d\ge3$, let $f_i:\R^d\to\R$ be differentiable, convex, and
+$L$-smooth. Write $f=n^{-1}\sum_i f_i$ and assume that $f$ has a minimizer
+$x_\star$. Random reshuffling starts from $x_{1,0}$ and, independently in each
+epoch $k$, draws a uniform permutation $\pi_k$ of $[n]$ and updates
+\begin{equation}
+ x_{k,i}=x_{k,i-1}-\eta\nabla f_{\pi_k(i)}(x_{k,i-1}),
+ \qquad i\in[n].
+ \label{eq:rr}
+\end{equation}
+Set $x_{k+1,0}=x_{k,n}$. The output is
+\begin{equation}
+ \bar x=\frac{1}{nK}\sum_{k=1}^K\sum_{i=0}^{n-1}x_{k,i}.
+ \label{eq:output}
+\end{equation}
+This is exactly the constant-step specialization of the weighted output of
+\citet{liu2026dominates}.
+
+Let $\cF_n(L,D,\sigma)$ contain all such finite sums, over arbitrary
+$d\ge3$, paired with an initialization satisfying
+\begin{equation}
+ \lVert x_{1,0}-x_\star\rVert\le D,
+ \qquad \sigma_\star\le\sigma,
+ \label{eq:class}
+\end{equation}
+where $\sigma_\star$ is defined in \eqref{eq:sigma}. Define the optimally
+tuned constant-step minimax risk
+\begin{equation}
+\begin{aligned}
+ \mathfrak M_{n,K}(L,D,\sigma)
+ =\inf_{0<\eta\le1/(6L)}
+ \sup_{\substack{(f,x_{1,0})\\
+ \in\cF_n(L,D,\sigma)}}\\[-0.5ex]
+ \hspace{2.8em}\E[f(\bar x)-f(x_\star)].
+\end{aligned}
+ \label{eq:minimax}
+\end{equation}
+
+The upper side of our result follows from the recent theorem and a uniform
+small-step limit.
+
+\begin{proposition}[Upper benchmark \citealp{liu2026dominates}]
+\label{prop:upper}
+For every $n,K\ge1$,
+\begin{align}
+ \mathfrak M_{n,K}(L,D,\sigma)
+ \asympup
+ \min\!\left\{LD^2,\frac{LD^2}{nK}\right.\quad\notag\\[-1ex]
+ \left.{}+\min\!\left\{
+ \frac{\sigma D}{\sqrt{nK}},
+ \left(\frac{L\sigma^2D^4}{nK^2}\right)^{1/3}
+ \right\}\right\}.
+ \label{eq:upper}
+\end{align}
+\end{proposition}
+
+The $LD^2$ term follows from a uniform iterate bound as $\eta$ tends to zero.
+The proof is in the supplement. The remaining terms are Corollary 1 of
+\citet{liu2026dominates} with equal component smoothness constants. We retain
+the cap because it is needed in low-noise or short-horizon regimes.
+
+\section{Main Results}
+\label{sec:results}
+
+Our fixed-step theorem matches the dependence in \eqref{eq:liu-fixed} whenever
+that expression is informative relative to smoothness.
+
+\begin{theorem}[All-regime fixed-step lower bound]
+\label{thm:fixed}
+There is a universal $c>0$ such that, for every $n\ge32$, $K\ge1$,
+$L,D,\sigma>0$, and $0<\eta\le1/(6L)$, there is an instance in
+$\cF_n(L,D,\sigma)$ with $\sigma_\star=\sigma$,
+$\lVert x_{1,0}-x_\star\rVert=D$, and component smoothness exactly $L$ for
+which
+\begin{align}
+ \E[f(\bar x)-f(x_\star)]
+ \ge c\min\!\left\{LD^2,\frac{D^2}{\eta nK}\right.\quad\notag\\[-1ex]
+ \left.{}+\min\{\eta,\eta^2nL\}\sigma^2\right\}.
+ \label{eq:fixed-lower}
+\end{align}
+The instance has dimension three. It may depend on the tested step $\eta$,
+as is standard for a minimax lower bound.
+\end{theorem}
+
+The restriction $n\ge32$ only simplifies numerical constants. The supplement
+also gives the dummy-component reduction for odd $n$.
+
+Combining Theorem~\ref{thm:fixed} with
+Proposition~\ref{prop:upper} gives the complete optimized characterization.
+
+\begin{corollary}[Minimax rate]
+\label{cor:minimax}
+For every $n\ge32$ and $K\ge1$,
+\begin{align}
+ \mathfrak M_{n,K}(L,D,\sigma)
+ \asymp
+ \min\!\left\{LD^2,\frac{LD^2}{nK}\right.\quad\notag\\[-1ex]
+ \left.{}+\min\!\left\{
+ \frac{\sigma D}{\sqrt{nK}},
+ \left(\frac{L\sigma^2D^4}{nK^2}\right)^{1/3}
+ \right\}\right\}.
+ \label{eq:minimax-rate}
+\end{align}
+The constants in $\asymp$ are universal.
+\end{corollary}
+
+The stochastic branches meet at
+\begin{equation}
+ K=\frac{L^2D^2n}{\sigma^2}.
+ \label{eq:transition}
+\end{equation}
+Below this threshold, the optimal step satisfies $\eta nL\gtrsim1$ and the
+$\SGD$ branch is minimax. Above it, $\eta nL\lesssim1$ and reshuffling gives
+the cubic branch. No assumption that $K$ exceeds the threshold is made.
+
+\subsection{Separate average and maximum smoothness}
+\label{sec:heterogeneous}
+
+The upper theorem of \citet{liu2026dominates} uses
+\[
+ \bar L=\frac1n\sum_{i=1}^nL_i,
+ \qquad \widehat L=\max_iL_i
+\]
+separately. The maximum restricts the step, while the average controls the
+small-step noise. The equal-smoothness result is not exploiting an ambiguity
+in these parameters. We can match the full two-parameter rate.
+
+Let $L_i$ denote the minimal gradient-Lipschitz constant of $f_i$. Let
+$\cF_n(\bar L,\widehat L,D,\sigma)$ be the analogue of the class in
+Section~\ref{sec:setting}, with these constants satisfying the display above.
+Define
+\begin{equation}
+\begin{aligned}
+ &\mathfrak M_{n,K}(\bar L,\widehat L,D,\sigma)\\
+ &\quad=\inf_{0<\eta\le1/(6\widehat L)}
+ \sup_{\cF_n(\bar L,\widehat L,D,\sigma)}
+ \E[f(\bar x)-f(x_\star)].
+\end{aligned}
+ \label{eq:minimax-hetero}
+\end{equation}
+
+\begin{theorem}[Heterogeneous minimax rate]
+\label{thm:heterogeneous}
+If $n\bar L/\widehat L\ge34$, then
+\begin{align}
+ \mathfrak M_{n,K}(\bar L,\widehat L,D,\sigma)
+ \asymp
+ \min\!\left\{\bar LD^2,\frac{\widehat LD^2}{nK}\right.\quad\notag\\[-1ex]
+ \left.{}+\min\!\left\{
+ \frac{\sigma D}{\sqrt{nK}},
+ \left(\frac{\bar L\sigma^2D^4}{nK^2}\right)^{1/3}
+ \right\}\right\}.
+ \label{eq:minimax-hetero-rate}
+\end{align}
+The constants are universal.
+\end{theorem}
+
+Here is the construction. Choose an even
+$m\asymp n\bar L/\widehat L$. Only these $m$ components act on the hard
+$u,v$ coordinates. The others are no-ops there. Give active components
+smoothness $\widehat L$ in the dormant coordinate, and choose the inactive
+dormant curvature so that the average is exactly $\bar L$. Put balanced active
+gradients of magnitude $\sigma\sqrt{n/m}$ at the optimum. Their full
+$n$-component variance is exactly $\sigma^2$.
+
+Deleting no-ops from a uniform permutation leaves a uniform permutation of
+the active components. More subtly, the output still averages all $n$ states.
+Conditional on the active order, inactive positions form a uniform
+interleaving. If $z_0,\ldots,z_m$ are the active states, the expected
+coefficient on each $z_r$ for $r<m$ is
+\[
+ \frac{n+1}{n(m+1)}.
+\]
+The endpoint coefficient is nonnegative. Since the bridge gives
+$\E z_r\ge0$, the full all-iterate mean is at least one half of the active
+all-iterate mean.
+
+Apply Lemma~\ref{lem:bridge} with
+\[
+ \ell=\min\{\widehat L,1/(161\eta m)\}.
+\]
+The full objective contains $m h/n$, so its stochastic scale is
+\[
+ \frac mn\ell\eta^2
+ \left(\sigma\sqrt{\frac nm}\right)^2m
+ =\ell\eta^2m\sigma^2
+ \asymp\min\{\eta^2n\bar L,\eta\}\sigma^2.
+\]
+Using the same active subset for the slow coordinate gives
+$\min\{\bar LD^2,D^2/(\eta nK)\}$. The finite-horizon case split and scalar
+optimization then prove Theorem~\ref{thm:heterogeneous}. Full details,
+including the choice of $m$ and exact interleaving coefficients, are in the
+supplement.
+
+\section{The Rescaled Asymmetric Bridge}
+\label{sec:bridge}
+
+We isolate the stochastic part of the proof. Let $n$ be even and choose
+balanced $b_i\in\{-\sigma,+\sigma\}$. For an active curvature $\ell>0$, set
+\begin{equation}
+ h(v)=\frac{\ell}{2}(v_-)^2
+ +\frac{\ell}{2\cdot2415}(v_+)^2,
+ \label{eq:h}
+\end{equation}
+where $v_+=\max\{v,0\}$ and $v_-=\max\{-v,0\}$. The components are
+$h_i(v)=h(v)+b_iv$. Their average is $h$, and $v_\star=0$.
+
+The following lemma strengthens the endpoint mechanism of
+\citet{rajput2020closing} and \citet{cha2023tighter} to the output
+\eqref{eq:output}.
+
+\begin{lemma}[All-iterate asymmetric bridge]
+\label{lem:bridge}
+Suppose $n\ge32$ is even, $\eta\ell n\le1/161$, and $v_{1,0}=0$.
+Run $K$ epochs of $\RR$ on the components $h_i$, and let $\bar v$ average all
+pre-update iterates. There is a universal $c_b>0$ such that
+\begin{equation}
+ \E\bar v\ge c_b\eta\sigma\sqrt n
+ \min\{1,K\eta\ell n\}.
+ \label{eq:bridge-mean}
+\end{equation}
+Consequently,
+\begin{equation}
+ \E h(\bar v)\ge c_b'
+ \ell\eta^2n\sigma^2
+ \min\{1,K\eta\ell n\}^2.
+ \label{eq:bridge-risk}
+\end{equation}
+\end{lemma}
+
+\paragraph{Proof idea.}
+Write $Y_k=v_{k,0}$, $M_k=\E Y_k$, and
+$\alpha=\eta\ell n$. The bridge estimates of
+\citet{cha2023tighter} imply that, conditional on a fixed nonnegative start,
+the first half of an epoch has expected iterate
+\begin{equation}
+ \E[v_{k,i}\mid Y_k=y]
+ \ge \left(1-\frac23\eta\ell i\right)y
+ +\frac{\eta^2\ell\sigma}{480}
+ \sum_{j=0}^{i-1}\sqrt j.
+ \label{eq:first-half}
+\end{equation}
+For the second half, their two expected-gradient estimates give
+\begin{equation}
+ \E[v_{k,i}\mid Y_k=y]
+ \ge(1-0.36\alpha)y
+ +\frac{\eta^2\ell\sigma n^{3/2}}{18000}.
+ \label{eq:second-half}
+\end{equation}
+The numerical constants are deliberately loose.
+
+Negative starts require care because replacing $y$ by $M_k$ in these
+inequalities is not automatic. Couple the asymmetric process to the symmetric
+$\ell$-quadratic process under the same permutation. The former is pointwise
+larger after every update. Hence, for $y<0$,
+\begin{equation}
+ \E[v_{k,i}\mid Y_k=y]\ge(1-\eta\ell)^iy.
+ \label{eq:negative}
+\end{equation}
+For the first half,
+$(1-\eta\ell)^i\le1-(2/3)\eta\ell i$. In the second half,
+$(1-\eta\ell)^i\le1-0.36\alpha$. Multiplication by $y<0$ reverses these
+coefficient inequalities. Thus positive and negative starts share the same
+coefficient before averaging over $Y_k$.
+
+A sign-flip coupling gives $\Pr(Y_k\ge0)\ge1/2$ in every epoch. The endpoint
+version of \eqref{eq:second-half} then yields
+\begin{equation}
+ M_{k+1}\ge(1-0.36\alpha)M_k
+ +\frac{\alpha\eta\sigma\sqrt n}{36000}.
+ \label{eq:epoch-recursion}
+\end{equation}
+Starting from $M_1=0$, this recursion keeps $M_k$ nonnegative and gives
+\begin{equation}
+ \frac1K\sum_{k=1}^KM_k
+ \asympdown \eta\sigma\sqrt n\min\{1,(K-1)\alpha\}.
+ \label{eq:mean-starts}
+\end{equation}
+At least one third of the within-epoch iterates also receive the direct positive
+term in \eqref{eq:second-half}. Averaging all iterates gives
+\eqref{eq:bridge-mean}, including $K=1$. Since
+$h(v)\ge\ell v^2/(2\cdot2415)$, Jensen's inequality gives
+\eqref{eq:bridge-risk}. The supplement proves every displayed inequality and
+tracks integer endpoints.
+
+The curvature choice \eqref{eq:ell} is now decisive. It ensures the lemma's
+small-effective-step condition for every $\eta$, while
+\begin{equation}
+ \ell\eta^2n
+ =\min\{\eta^2nL,\eta/161\}
+ \asymp\min\{\eta^2nL,\eta\}.
+ \label{eq:two-branches}
+\end{equation}
+This turns one local bridge inequality into both stochastic regimes.
+
+\section{Proof of the Lower Bound}
+\label{sec:proof}
+
+We prove Theorem~\ref{thm:fixed} for even $n$. The odd case is in the
+supplement. Let $T=nK$ and define
+\begin{equation}
+ \lambda=\min\left\{L,\frac{1}{2\eta T}\right\},
+ \qquad \ell=\min\left\{L,\frac{1}{161\eta n}\right\}.
+ \label{eq:curvatures}
+\end{equation}
+On $x=(u,v,w)\in\R^3$, set
+\begin{equation}
+ f_i(u,v,w)=\frac\lambda2u^2+h(v)+b_iv+\frac L2w^2,
+ \label{eq:hard}
+\end{equation}
+with $h$ from \eqref{eq:h}, and initialize at $(D,0,0)$. The average objective
+is $\lambda u^2/2+h(v)+Lw^2/2$ and has minimizer zero. Every component is
+convex. Its minimal smoothness constant is exactly $L$ because of the dormant
+$w$ coordinate. Also, the initial distance is exactly $D$ and
+$\sigma_\star=\sigma$. The $w$ coordinate remains zero.
+
+The $u$ iterates satisfy $u_t=(1-\eta\lambda)^tD$. Since
+$\eta\lambda T\le1/2$, every pre-update iterate is at least $D/2$. Therefore
+\begin{equation}
+ \frac\lambda2\bar u^2
+ \asympdown \min\left\{LD^2,\frac{D^2}{\eta T}\right\}.
+ \label{eq:transient}
+\end{equation}
+
+Lemma~\ref{lem:bridge} and \eqref{eq:two-branches} control the $v$ coordinate.
+If $\eta L T\ge1/161$, then
+\[
+ K\eta\ell n=K\min\{\eta nL,1/161\}\ge1/161.
+\]
+The attenuation in \eqref{eq:bridge-risk} is then a universal constant, so
+\begin{equation}
+ \E h(\bar v)
+ \asympdown\min\{\eta,\eta^2nL\}\sigma^2.
+ \label{eq:stochastic-full}
+\end{equation}
+Combining \eqref{eq:transient} and \eqref{eq:stochastic-full} gives
+\eqref{eq:fixed-lower}. If $\eta LT<1/161$, then $\lambda=L$ and
+\eqref{eq:transient} alone is $\Omega(LD^2)$, which again gives
+\eqref{eq:fixed-lower}. This proves the theorem.
+
+For completeness, optimizing the lower bound is elementary. Put
+\[
+ \Phi(\eta)=\frac{D^2}{\eta nK}
+ +\sigma^2\min\{\eta,\eta^2nL\}.
+\]
+On $\eta\ge1/(nL)$, balancing the first term with $\eta\sigma^2$ gives
+$\eta=D/(\sigma\sqrt{nK})$ and value
+$\sigma D/\sqrt{nK}$. On $\eta\le1/(nL)$, balancing with
+$\eta^2nL\sigma^2$ gives
+\begin{equation}
+ \eta=\left(\frac{D^2}{n^2KL\sigma^2}\right)^{1/3}
+ \label{eq:eta-cubic}
+\end{equation}
+and the cubic term in \eqref{eq:minimax-rate}. The two candidate steps lie in
+their stated regions on opposite sides of the threshold
+\eqref{eq:transition}. Clipping at $1/(6L)$ contributes $LD^2/(nK)$.
+Finally, the outer minimum with $LD^2$ commutes with the infimum over $\eta$.
+This proves Corollary~\ref{cor:minimax}.
+
+\section{Relation to Prior Lower Bounds}
+\label{sec:related}
+
+\citet{safran2020good} analyze final epoch iterates of strongly convex
+quadratics and establish sharp weighted-permutation variance estimates.
+\citet{safran2021many} add condition-number dependence and show that
+reshuffling need not improve on independent sampling before many epochs.
+These quadratic constructions are symmetric and target final iterates.
+
+\citet{rajput2020closing} introduced the asymmetric piecewise quadratic for a
+strongly convex endpoint lower bound. \citet{cha2023tighter} sharpened the
+mechanism, gave lower bounds for arbitrary weighted averages of epoch
+endpoints, and extended the cubic rate to convex objectives. Their convex
+theorem assumes $\eta\le1/(161nL)$ and a large epoch count. Our bridge uses
+their local permutation estimates with attribution. The common-coefficient
+argument, control of every within-epoch iterate, curvature rescaling, dormant
+smoothness coordinate, and finite-horizon direct sum are new.
+
+Recent papers improve upper bounds through primal-dual structure, heterogeneous
+smoothness, or last-iterate analysis \citep{cai2024tighter,liu2024last}.
+They do not supply the lower bound considered here. The later small-epoch study
+of \citet{kim2025incremental} concerns deterministic incremental gradients and
+lists random-reshuffling lower bounds as open. Most decisively,
+\citet{liu2026dominates} proves the exact upper benchmark used here and states
+that a complete lower characterization for reasonable steps and finite epochs
+is missing.
+
+Two adjacent preprints address different questions. \citet{li2025unified}
+unify nonconvex upper analyses through an order-error assumption.
+\citet{peng2026resolution} resolve operator-norm comparisons among shuffle
+schemes for near-identity quadratics. Neither gives an objective-risk lower
+bound with gradient noise.
+
+\section{Discussion}
+\label{sec:discussion}
+
+The rate has a simple interpretation. Random reshuffling has two stochastic
+time scales. When the stable memory $1/(\eta L)$ is shorter than an epoch, the
+hard instance behaves at the $\SGD$ noise scale. When it is longer, balancing a
+random-permutation bridge against curvature gives the cubic reshuffling scale.
+The active-curvature reduction makes this interpolation visible in one hard
+family rather than through unrelated case constructions.
+
+Our result is information theoretic and concerns the algorithm exactly as
+stated. The hard instance may depend on its constant step. We do not claim a
+lower bound against arbitrary time-varying schedules, momentum, variance
+reduction, or adaptive permutation design. Last-iterate risks can differ from
+the all-iterate output studied here. Extending the characterization to
+nonconvex components or fixed componentwise smoothness profiles remains open.
+
+The proof uses no high-dimensional embedding and no oracle hiding. Three
+coordinates suffice: one for deterministic transient, one for permutation
+bias, and one dormant coordinate that certifies the exact class smoothness.
+This low-dimensional structure suggests that the transition in
+\eqref{eq:minimax-rate} reflects the dynamics of reshuffling itself rather
+than statistical complexity of the function class.
+
+\bibliography{references}
+
+\clearpage
+\end{document}

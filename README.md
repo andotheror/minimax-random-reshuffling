@@ -40,6 +40,6 @@ The constants are universal.
 
 ## Files
 
-- `main.pdf` — the paper.
-- `supplement.pdf` — full proofs and supporting lemmas.
-- `*.ots` — OpenTimestamps proofs establishing the existence date of each file.
+- `main.pdf`, the paper.
+- `supplement.pdf`, full proofs and supporting lemmas.
+- `*.ots`, OpenTimestamps proofs establishing the existence date of each file.

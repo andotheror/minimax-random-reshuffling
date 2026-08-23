@@ -40,5 +40,7 @@ The constants are universal.
 
 ## Files
 
+- `main_2026-07-30.pdf`, the paper as first published, with its OpenTimestamps proof `main_2026-07-30.pdf.ots`.
+- `supplement_2026-07-30.pdf`, the supplement as first published, with its OpenTimestamps proof `supplement_2026-07-30.pdf.ots`.
 - source: `aistats2027.sty`, `main_2026-07-30.tex`, `references.bib`, `supplement_2026-07-30.tex`.
-- also: `main_2026-07-30.bbl`, `main_2026-07-30.pdf`, `supplement_2026-07-30.bbl`, `supplement_2026-07-30.pdf`.
+- also: `main_2026-07-30.bbl`, `supplement_2026-07-30.bbl`.

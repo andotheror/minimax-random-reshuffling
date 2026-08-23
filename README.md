@@ -40,6 +40,7 @@ The constants are universal.
 
 ## Files
 
-- `main.pdf`, the paper.
-- `supplement.pdf`, full proofs and supporting lemmas.
-- `*.ots`, OpenTimestamps proofs establishing the existence date of each file.
+- `main_old_2026-07-30.pdf`, the paper as first published, with its OpenTimestamps proof `main_old_2026-07-30.pdf.ots`.
+- `supplement_old_2026-07-30.pdf`, the supplement as first published, with its OpenTimestamps proof `supplement_old_2026-07-30.pdf.ots`.
+- source: `aistats2027.sty`, `main.tex`, `references.bib`, `supplement.tex`.
+- also: `main.bbl`, `supplement.bbl`.
